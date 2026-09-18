@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#0c0c0f" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <title>Кошелёк</title>
+  <link rel="manifest" href="manifest.webmanifest" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div id="app" class="app-shell">
+    <section id="splash" class="screen splash-screen active" aria-label="Загрузка">
+      <div class="splash-orbit" aria-hidden="true"><span></span><span></span><span></span></div>
+      <div class="splash-logo">₽</div>
+      <h1>Кошелёк</h1>
+      <p>Деньги без шума</p>
+      <div class="splash-loader"><i></i></div>
+    </section>
+
+    <section id="authScreen" class="screen auth-screen">
+      <div class="auth-wrap">
+        <div class="brand-mini"><span>₽</span><b>Кошелёк</b></div>
+        <div id="authContent"></div>
+      </div>
+    </section>
+
+    <section id="mainScreen" class="screen main-screen">
+      <header class="topbar">
+        <div>
+          <div class="eyebrow" id="todayLabel"></div>
+          <h2 id="pageTitle">Главная</h2>
+        </div>
+        <button class="icon-btn" id="profileButton" aria-label="Профиль">◎</button>
+      </header>
+
+      <main id="pageHost" class="page-host"></main>
+
+      <nav class="bottom-nav" aria-label="Навигация">
+        <button data-page="home" class="nav-item active"><span>⌂</span><b>Главная</b></button>
+        <button data-page="stats" class="nav-item"><span>◒</span><b>Статистика</b></button>
+        <button data-page="history" class="nav-item"><span>≡</span><b>История</b></button>
+        <button data-page="settings" class="nav-item"><span>⚙</span><b>Ещё</b></button>
+      </nav>
+    </section>
+  </div>
+
+  <div id="modalRoot"></div>
+  <div id="toastRoot" class="toast-root"></div>
+
+  <script src="js/utils.js"></script>
+  <script src="js/storage.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/stats.js"></script>
+  <script src="js/ui.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
