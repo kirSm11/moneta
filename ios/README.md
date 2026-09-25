@@ -20,3 +20,7 @@
 5. Выбери свой iPhone в списке устройств и нажми **Run**.
 
 Для личной установки платная подписка Apple Developer не обязательна, но бесплатная подпись имеет ограничения по сроку действия.
+
+## Сборка без Mac
+
+Workflow `Build iOS IPA` собирает неподписанный `Moneta-unsigned.ipa` на GitHub-hosted macOS runner. Такой IPA можно затем подписать своим Apple Account и установить с Windows через совместимый sideload-инструмент.
