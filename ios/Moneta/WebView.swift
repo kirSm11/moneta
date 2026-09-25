@@ -135,7 +135,6 @@ struct MonetaWebView: UIViewRepresentable {
                     switch context.biometryType {
                     case .faceID: biometry = "faceID"
                     case .touchID: biometry = "touchID"
-                    case .opticID: biometry = "opticID"
                     default: biometry = "unknown"
                     }
                 }
