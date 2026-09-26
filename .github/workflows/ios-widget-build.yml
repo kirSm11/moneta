@@ -15,6 +15,12 @@ jobs:
       - uses: actions/checkout@v4
       - name: Install XcodeGen
         run: brew install xcodegen
+      - name: Bundle Moneta web app
+        run: |
+          rm -rf ios/Moneta/web
+          mkdir -p ios/Moneta/web
+          cp index.html styles.css manifest.webmanifest sw.js ios/Moneta/web/
+          cp -R js assets ios/Moneta/web/
       - name: Generate Xcode project
         working-directory: ios
         run: xcodegen generate
