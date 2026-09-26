@@ -154,7 +154,20 @@
     const raw=JSON.stringify(db);
     localSet(raw);
     queueIDBWrite(raw);
-    try{\n      const p=getProfile();\n      if(p){\n        const now=new Date(), pad=n=>String(n).padStart(2,'0');\n        const day=now.getFullYear()+'-'+pad(now.getMonth()+1)+'-'+pad(now.getDate());\n        const spent=(p.transactions||[]).filter(t=>{\n          if(t.type!=='expense')return false;\n          const d=new Date(t.datetime);\n          return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate())===day;\n        }).reduce((sum,t)=>sum+(Number(t.amount)||0),0);\n        window.webkit?.messageHandlers?.monetaWidget?.postMessage({spent,date:day});\n      }\n    }catch(e){}\n    return localAvailable||idbAvailable;
+    try{
+      const p=getProfile();
+      if(p){
+        const now=new Date(), pad=n=>String(n).padStart(2,'0');
+        const day=now.getFullYear()+'-'+pad(now.getMonth()+1)+'-'+pad(now.getDate());
+        const spent=(p.transactions||[]).filter(t=>{
+          if(t.type!=='expense')return false;
+          const d=new Date(t.datetime);
+          return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate())===day;
+        }).reduce((sum,t)=>sum+(Number(t.amount)||0),0);
+        window.webkit?.messageHandlers?.monetaWidget?.postMessage({spent,date:day});
+      }
+    }catch(e){}
+    return localAvailable||idbAvailable;
   };
 
   const ready=(async()=>{
