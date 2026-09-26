@@ -14,8 +14,12 @@ struct MonetaWebView: UIViewRepresentable {
         config.userContentController = controller
         let web = WKWebView(frame: .zero, configuration: config)
         web.scrollView.contentInsetAdjustmentBehavior = .never
-        if let url = URL(string: "https://kirsm11.github.io/moneta/") {
-            web.load(URLRequest(url: url, cachePolicy: .reloadIgnoringLocalCacheData))
+        web.isOpaque = false
+
+        if let url = Bundle.main.url(forResource: "index", withExtension: "html", subdirectory: "web") {
+            web.loadFileURL(url, allowingReadAccessTo: url.deletingLastPathComponent())
+        } else {
+            web.loadHTMLString("<html><body style='background:#111;color:white;font-family:-apple-system;padding:40px'><h2>Moneta</h2><p>Web resources missing.</p></body></html>", baseURL: nil)
         }
         return web
     }
