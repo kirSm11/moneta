@@ -26,8 +26,7 @@ struct Provider: AppIntentTimelineProvider {
     }
 
     func timeline(for configuration: MonetaWidgetConfiguration, in context: Context) async -> Timeline<Entry> {
-        let e = entry(configuration)
-        return Timeline(entries: [e], policy: .after(Date().addingTimeInterval(15 * 60)))
+        Timeline(entries: [entry(configuration)], policy: .after(Date().addingTimeInterval(15 * 60)))
     }
 
     private func entry(_ configuration: MonetaWidgetConfiguration) -> Entry {
@@ -43,33 +42,148 @@ struct Provider: AppIntentTimelineProvider {
     }
 }
 
+private let ink = Color(red: 0.045, green: 0.042, blue: 0.055)
+private let mustard = Color(red: 0.91, green: 0.68, blue: 0.22)
+private let violet = Color(red: 0.48, green: 0.29, blue: 0.88)
+private let softWhite = Color.white.opacity(0.92)
+
 struct MonetaWidgetView: View {
+    @Environment(\.widgetFamily) private var family
     var entry: Entry
+
     private var left: Double { entry.limit - entry.spent }
+    private var progress: Double {
+        guard entry.limit > 0 else { return 0 }
+        return min(max(entry.spent / entry.limit, 0), 1)
+    }
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 7) {
-            HStack {
-                Text("МОНЕТА").font(.caption.bold())
+        if family == .systemMedium { medium } else { small }
+    }
+
+    private var small: some View {
+        VStack(alignment: .leading, spacing: 0) {
+            header
+            Spacer(minLength: 8)
+
+            Text(left >= 0 ? "ОСТАЛОСЬ" : "СВЕРХ ЛИМИТА")
+                .font(.system(size: 10, weight: .bold, design: .rounded))
+                .tracking(1.15)
+                .foregroundStyle(Color.white.opacity(0.48))
+
+            Text(money(abs(left)))
+                .font(.system(size: 27, weight: .heavy, design: .rounded))
+                .foregroundStyle(left >= 0 ? mustard : softWhite)
+                .minimumScaleFactor(0.62)
+                .lineLimit(1)
+
+            Spacer(minLength: 9)
+            progressBar
+            HStack(spacing: 3) {
+                Text("Потрачено")
+                    .foregroundStyle(Color.white.opacity(0.48))
                 Spacer()
-                Image(systemName: "rublesign.circle.fill")
+                Text(money(entry.spent))
+                    .foregroundStyle(softWhite)
+                    .fontWeight(.semibold)
             }
-            Spacer()
-            Text(money(entry.spent))
-                .font(.title2.bold())
-                .minimumScaleFactor(0.7)
-            Text("потрачено сегодня")
-                .font(.caption)
-                .foregroundStyle(.secondary)
-            HStack {
-                Text(left >= 0 ? "Осталось" : "Сверх лимита")
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
+            .font(.system(size: 10, design: .rounded))
+            .padding(.top, 6)
+        }
+        .padding(15)
+        .containerBackground(for: .widget) { background }
+    }
+
+    private var medium: some View {
+        HStack(spacing: 17) {
+            VStack(alignment: .leading, spacing: 0) {
+                header
                 Spacer()
-                Text(money(abs(left))).font(.caption.bold())
+
+                Text(left >= 0 ? "Можно потратить сегодня" : "Лимит превышен")
+                    .font(.system(size: 11, weight: .medium, design: .rounded))
+                    .foregroundStyle(Color.white.opacity(0.48))
+
+                Text(money(abs(left)))
+                    .font(.system(size: 31, weight: .heavy, design: .rounded))
+                    .foregroundStyle(left >= 0 ? mustard : softWhite)
+                    .minimumScaleFactor(0.65)
+                    .lineLimit(1)
+            }
+
+            Rectangle()
+                .fill(Color.white.opacity(0.08))
+                .frame(width: 1)
+
+            VStack(alignment: .leading, spacing: 9) {
+                Spacer()
+                stat("ПОТРАЧЕНО", money(entry.spent), violet)
+                progressBar
+                HStack {
+                    Text("ЛИМИТ")
+                    Spacer()
+                    Text(money(entry.limit))
+                }
+                .font(.system(size: 9, weight: .bold, design: .rounded))
+                .foregroundStyle(Color.white.opacity(0.43))
+                Spacer()
             }
         }
-        .containerBackground(.fill.tertiary, for: .widget)
+        .padding(17)
+        .containerBackground(for: .widget) { background }
+    }
+
+    private var header: some View {
+        HStack(spacing: 7) {
+            ZStack {
+                RoundedRectangle(cornerRadius: 7, style: .continuous)
+                    .fill(violet)
+                    .frame(width: 25, height: 25)
+                Text("₽")
+                    .font(.system(size: 13, weight: .black, design: .rounded))
+                    .foregroundStyle(.white)
+            }
+            Text("МОНЕТА")
+                .font(.system(size: 11, weight: .bold, design: .rounded))
+                .tracking(0.7)
+                .foregroundStyle(softWhite)
+        }
+    }
+
+    private var progressBar: some View {
+        GeometryReader { geo in
+            ZStack(alignment: .leading) {
+                Capsule().fill(Color.white.opacity(0.09))
+                Capsule()
+                    .fill(LinearGradient(colors: [violet, mustard], startPoint: .leading, endPoint: .trailing))
+                    .frame(width: max(5, geo.size.width * progress))
+            }
+        }
+        .frame(height: 6)
+    }
+
+    private func stat(_ title: String, _ value: String, _ color: Color) -> some View {
+        VStack(alignment: .leading, spacing: 2) {
+            Text(title)
+                .font(.system(size: 9, weight: .bold, design: .rounded))
+                .tracking(0.8)
+                .foregroundStyle(Color.white.opacity(0.42))
+            Text(value)
+                .font(.system(size: 18, weight: .bold, design: .rounded))
+                .foregroundStyle(color)
+                .minimumScaleFactor(0.7)
+                .lineLimit(1)
+        }
+    }
+
+    private var background: some View {
+        ZStack {
+            ink
+            RadialGradient(colors: [violet.opacity(0.20), .clear],
+                           center: .topTrailing, startRadius: 0, endRadius: 180)
+            LinearGradient(colors: [.clear, mustard.opacity(0.055)],
+                           startPoint: .top, endPoint: .bottomLeading)
+        }
     }
 
     private func money(_ value: Double) -> String {
@@ -83,13 +197,15 @@ struct MonetaWidgetView: View {
 
 struct MonetaDailyWidget: Widget {
     let kind = "MonetaDailyWidget"
+
     var body: some WidgetConfiguration {
         AppIntentConfiguration(kind: kind, intent: MonetaWidgetConfiguration.self, provider: Provider()) { entry in
             MonetaWidgetView(entry: entry)
         }
         .configurationDisplayName("Монета · Сегодня")
-        .description("Расходы за день и сколько осталось до дневного лимита.")
+        .description("Сколько потрачено и сколько можно потратить сегодня.")
         .supportedFamilies([.systemSmall, .systemMedium])
+        .contentMarginsDisabled()
     }
 }
 
