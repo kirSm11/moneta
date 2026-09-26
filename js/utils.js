@@ -47,6 +47,10 @@
     setTimeout(()=>URL.revokeObjectURL(url),15000);
   };
   U.shareFile = async (filename, text, type='application/json') => {
+    if(window.__MONETA_NATIVE_IOS__ && window.MonetaNative?.shareFile){
+      await window.MonetaNative.shareFile(filename,text,type);
+      return 'native';
+    }
     const blob=new Blob([text],{type});
     if(navigator.share){
       const candidates=[];
