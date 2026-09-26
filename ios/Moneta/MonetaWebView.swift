@@ -2,13 +2,23 @@ import SwiftUI
 import WebKit
 import WidgetKit
 import LocalAuthentication
-import Security
 
 private func sharedDefaults() -> UserDefaults? {
-    guard let task = SecTaskCreateFromSelf(nil),
-          let value = SecTaskCopyValueForEntitlement(task, "com.apple.security.application-groups" as CFString, nil),
-          let groups = value as? [String],
-          let group = groups.first else { return nil }
+    guard let url = Bundle.main.url(forResource: "embedded", withExtension: "mobileprovision"),
+          let data = try? Data(contentsOf: url),
+          let raw = String(data: data, encoding: .isoLatin1),
+          let xmlStart = raw.range(of: "<?xml"),
+          let xmlEnd = raw.range(of: "</plist>", range: xmlStart.lowerBound..<raw.endIndex) else {
+        return UserDefaults(suiteName: "group.com.kirsm11.moneta")
+    }
+    let xml = String(raw[xmlStart.lowerBound..<xmlEnd.upperBound])
+    guard let xmlData = xml.data(using: .utf8),
+          let plist = try? PropertyListSerialization.propertyList(from: xmlData, format: nil) as? [String: Any],
+          let entitlements = plist["Entitlements"] as? [String: Any],
+          let groups = entitlements["com.apple.security.application-groups"] as? [String],
+          let group = groups.first else {
+        return UserDefaults(suiteName: "group.com.kirsm11.moneta")
+    }
     return UserDefaults(suiteName: group)
 }
 
