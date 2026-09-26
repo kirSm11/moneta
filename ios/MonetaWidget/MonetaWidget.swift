@@ -1,8 +1,15 @@
 import WidgetKit
 import SwiftUI
 import AppIntents
+import Security
 
-private let appGroup = "group.com.kirsm11.moneta"
+private func sharedDefaults() -> UserDefaults? {
+    guard let task = SecTaskCreateFromSelf(nil),
+          let value = SecTaskCopyValueForEntitlement(task, "com.apple.security.application-groups" as CFString, nil),
+          let groups = value as? [String],
+          let group = groups.first else { return nil }
+    return UserDefaults(suiteName: group)
+}
 
 struct MonetaWidgetConfiguration: WidgetConfigurationIntent {
     static var title: LocalizedStringResource = "Дневной лимит"
@@ -30,7 +37,7 @@ struct Provider: AppIntentTimelineProvider {
     }
 
     private func entry(_ configuration: MonetaWidgetConfiguration) -> Entry {
-        let defaults = UserDefaults(suiteName: appGroup)
+        let defaults = sharedDefaults()
         let spent = defaults?.double(forKey: "todaySpent") ?? 0
         return Entry(date: .now, spent: spent, limit: max(0, configuration.dailyLimit))
     }
