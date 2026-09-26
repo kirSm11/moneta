@@ -6,6 +6,10 @@ on:
     branches: ["main", "moneta-ios-widget"]
     paths:
       - "ios/**"
+      - "js/**"
+      - "index.html"
+      - "styles.css"
+      - "assets/**"
       - ".github/workflows/ios-widget-build.yml"
 
 jobs:
