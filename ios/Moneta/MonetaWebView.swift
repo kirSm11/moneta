@@ -33,10 +33,8 @@ struct MonetaWebView: UIViewRepresentable {
             guard let body = message.body as? [String: Any] else { return }
             if message.name == "monetaWidget" {
                 let spent = (body["spent"] as? NSNumber)?.doubleValue ?? 0
-                let stamp = body["date"] as? String ?? ""
                 let defaults = UserDefaults(suiteName: appGroup)
                 defaults?.set(spent, forKey: "todaySpent")
-                defaults?.set(stamp, forKey: "todayDate")
                 defaults?.set(Date().timeIntervalSince1970, forKey: "lastSync")
                 WidgetCenter.shared.reloadTimelines(ofKind: "MonetaDailyWidget")
                 return
