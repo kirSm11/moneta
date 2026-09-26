@@ -21,6 +21,19 @@ jobs:
           mkdir -p ios/Moneta/web
           cp index.html styles.css manifest.webmanifest sw.js ios/Moneta/web/
           cp -R js assets ios/Moneta/web/
+          mkdir -p ios/Moneta/Assets.xcassets/AppIcon.appiconset
+          sips -z 1024 1024 assets/icon-180.png --out ios/Moneta/Assets.xcassets/AppIcon.appiconset/AppIcon-1024.png >/dev/null
+          cat > ios/Moneta/Assets.xcassets/AppIcon.appiconset/Contents.json <<'EOF'
+          {
+            "images": [
+              {"filename":"AppIcon-1024.png","idiom":"universal","platform":"ios","size":"1024x1024"}
+            ],
+            "info":{"author":"xcode","version":1}
+          }
+          EOF
+          cat > ios/Moneta/Assets.xcassets/Contents.json <<'EOF'
+          {"info":{"author":"xcode","version":1}}
+          EOF
       - name: Generate Xcode project
         working-directory: ios
         run: xcodegen generate
