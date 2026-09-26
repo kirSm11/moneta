@@ -15,6 +15,14 @@ jobs:
       - uses: actions/checkout@v4
       - name: Install XcodeGen
         run: brew install xcodegen
+      - name: Validate Moneta JavaScript
+        run: |
+          node --check js/utils.js
+          node --check js/storage.js
+          node --check js/auth.js
+          node --check js/stats.js
+          node --check js/ui.js
+          node --check js/app.js
       - name: Bundle Moneta web app
         run: |
           rm -rf ios/Moneta/web
