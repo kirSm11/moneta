@@ -54,8 +54,8 @@ jobs:
 
           # Preserve capabilities in the IPA so SideStore can discover and
           # provision the same App Group for the app and WidgetKit extension.
-          codesign --force --sign - --entitlements Moneta/MonetaWidget/MonetaWidget.entitlements Payload/Moneta.app/PlugIns/MonetaWidget.appex
-          codesign --force --sign - --entitlements Moneta/Moneta/Moneta.entitlements Payload/Moneta.app
+          codesign --force --sign - --entitlements MonetaWidget/MonetaWidget.entitlements Payload/Moneta.app/PlugIns/MonetaWidget.appex
+          codesign --force --sign - --entitlements Moneta/Moneta.entitlements Payload/Moneta.app
 
           echo "Main app entitlements:"
           codesign -d --entitlements :- Payload/Moneta.app
