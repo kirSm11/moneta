@@ -1,0 +1,32 @@
+name: Build Moneta iOS + Widget
+
+on:
+  workflow_dispatch:
+  push:
+    branches: ["main", "moneta-ios-widget"]
+    paths:
+      - "ios/**"
+      - ".github/workflows/ios-widget-build.yml"
+
+jobs:
+  build:
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install XcodeGen
+        run: brew install xcodegen
+      - name: Generate Xcode project
+        working-directory: ios
+        run: xcodegen generate
+      - name: Build unsigned app + widget
+        working-directory: ios
+        run: |
+          xcodebuild -project Moneta.xcodeproj -scheme Moneta -configuration Release -sdk iphoneos -derivedDataPath build CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO
+          mkdir -p Payload
+          cp -R build/Build/Products/Release-iphoneos/Moneta.app Payload/
+          zip -qry Moneta-Widget-unsigned.ipa Payload
+      - name: Upload IPA
+        uses: actions/upload-artifact@v4
+        with:
+          name: Moneta-Widget-unsigned
+          path: ios/Moneta-Widget-unsigned.ipa
