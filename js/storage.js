@@ -131,6 +131,19 @@
     return bc>ac?b:a;
   };
 
+  const widgetSnapshot=()=>{
+    try{
+      if(!(window.__MONETA_NATIVE_IOS__ && window.MonetaNative?.updateWidget))return;
+      const p=db.profiles.find(x=>x.id===db.activeProfileId)||null;
+      const now=new Date();
+      const today=U.dateISO(now);
+      const spent=(p?.transactions||[])
+        .filter(t=>t.type==='expense' && U.sameDay(t.datetime,now))
+        .reduce((sum,t)=>sum+(Number(t.amount)||0),0);
+      void window.MonetaNative.updateWidget(spent,today).catch(()=>{});
+    }catch(_){}
+  };
+
   // Load the synchronous backup first so legacy v1.x data is never ignored.
   db=parseRaw(localGet())||defaultDB();
 
@@ -154,6 +167,7 @@
     const raw=JSON.stringify(db);
     localSet(raw);
     queueIDBWrite(raw);
+    widgetSnapshot();
     return localAvailable||idbAvailable;
   };
 
@@ -165,6 +179,7 @@
     const raw=JSON.stringify(db);
     localSet(raw);
     if(handle)await idbSet(handle,KEY,raw);
+    widgetSnapshot();
     return db;
   })();
 
@@ -182,7 +197,7 @@
     localStorage:localAvailable,
     indexedDB:idbAvailable,
     protocol:location.protocol,
-    risk:(!localAvailable&&!idbAvailable)||location.protocol==='file:',
+    risk:(!localAvailable&&!idbAvailable)||(!window.__MONETA_NATIVE_IOS__&&location.protocol==='file:'),
     mode:idbAvailable&&localAvailable?'IndexedDB + резервная копия':idbAvailable?'IndexedDB':localAvailable?'localStorage':'только память'
   });
 
