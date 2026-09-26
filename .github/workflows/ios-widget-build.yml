@@ -49,3 +49,4 @@ jobs:
         with:
           name: Moneta-Widget-unsigned
           path: ios/Moneta-Widget-unsigned.ipa
+
