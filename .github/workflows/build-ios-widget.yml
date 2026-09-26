@@ -37,6 +37,13 @@ jobs:
           cp assets/icon-180.png "$APP/icon-180.png"
           /usr/libexec/PlistBuddy -c "Add :CFBundleIconFiles array" "$APP/Info.plist" || true
           /usr/libexec/PlistBuddy -c "Add :CFBundleIconFiles:0 string icon-180" "$APP/Info.plist" || true
+      - name: Preserve extension entitlements for sideload resigning
+        run: |
+          APP="ios/build/Build/Products/Release-iphoneos/Moneta.app"
+          codesign --force --sign - --entitlements ios/MonetaWidget/MonetaWidget.entitlements "$APP/PlugIns/MonetaWidget.appex"
+          codesign --force --sign - --entitlements ios/MonetaApp/Moneta.entitlements "$APP"
+          codesign -d --entitlements :- "$APP" 2>&1
+          codesign -d --entitlements :- "$APP/PlugIns/MonetaWidget.appex" 2>&1
       - name: Package IPA
         run: |
           rm -rf Payload
