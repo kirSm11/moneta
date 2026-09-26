@@ -3,7 +3,7 @@ name: Build Moneta iOS + Widget
 on:
   workflow_dispatch:
   push:
-    branches: ["moneta-ios-widget"]
+    branches: ["main", "moneta-ios-widget"]
     paths:
       - "ios/**"
       - ".github/workflows/ios-widget-build.yml"
