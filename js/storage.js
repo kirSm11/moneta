@@ -182,7 +182,7 @@
     localStorage:localAvailable,
     indexedDB:idbAvailable,
     protocol:location.protocol,
-    risk:(!localAvailable&&!idbAvailable)||location.protocol==='file:',
+    risk:(!localAvailable&&!idbAvailable)||(!window.__MONETA_NATIVE_IOS__&&location.protocol==='file:'),
     mode:idbAvailable&&localAvailable?'IndexedDB + резервная копия':idbAvailable?'IndexedDB':localAvailable?'localStorage':'только память'
   });
 
