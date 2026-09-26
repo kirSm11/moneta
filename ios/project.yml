@@ -12,6 +12,11 @@ targets:
     platform: iOS
     sources:
       - path: Moneta
+        excludes:
+          - web
+      - path: Moneta/web
+        type: folder
+        buildPhase: resources
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.kirsm11.moneta
