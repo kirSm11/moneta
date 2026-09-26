@@ -1,0 +1,49 @@
+name: Build Moneta iOS + Widget
+
+on:
+  push:
+    branches: [ widget-v1 ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install XcodeGen
+        run: brew install xcodegen
+      - name: Generate project
+        run: |
+          cd ios
+          xcodegen generate
+      - name: Build unsigned app
+        run: |
+          xcodebuild \
+            -project ios/Moneta.xcodeproj \
+            -scheme Moneta \
+            -configuration Release \
+            -sdk iphoneos \
+            -derivedDataPath ios/build \
+            CODE_SIGNING_ALLOWED=NO \
+            CODE_SIGNING_REQUIRED=NO \
+            build
+      - name: Add web app into bundle
+        run: |
+          APP="ios/build/Build/Products/Release-iphoneos/Moneta.app"
+          mkdir -p "$APP/web"
+          cp index.html styles.css manifest.webmanifest sw.js "$APP/web/"
+          cp -R js "$APP/web/js"
+          cp -R assets "$APP/web/assets"
+          cp assets/icon-180.png "$APP/icon-180.png"
+          /usr/libexec/PlistBuddy -c "Add :CFBundleIconFiles array" "$APP/Info.plist" || true
+          /usr/libexec/PlistBuddy -c "Add :CFBundleIconFiles:0 string icon-180" "$APP/Info.plist" || true
+      - name: Package IPA
+        run: |
+          rm -rf Payload
+          mkdir Payload
+          cp -R ios/build/Build/Products/Release-iphoneos/Moneta.app Payload/
+          zip -qry Moneta-widget-unsigned.ipa Payload
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Moneta-widget-unsigned
+          path: Moneta-widget-unsigned.ipa
