@@ -156,15 +156,9 @@
     queueIDBWrite(raw);
     try{
       const p=getProfile();
-      if(p){
-        const now=new Date(), pad=n=>String(n).padStart(2,'0');
-        const day=now.getFullYear()+'-'+pad(now.getMonth()+1)+'-'+pad(now.getDate());
-        const spent=(p.transactions||[]).filter(t=>{
-          if(t.type!=='expense')return false;
-          const d=new Date(t.datetime);
-          return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate())===day;
-        }).reduce((sum,t)=>sum+(Number(t.amount)||0),0);
-        window.webkit?.messageHandlers?.monetaWidget?.postMessage({spent,date:day});
+      if(p && window.FinStats){
+        const spent=window.FinStats.total(p,{type:'expense',period:'day'});
+        window.webkit?.messageHandlers?.monetaWidget?.postMessage({spent});
       }
     }catch(e){}
     return localAvailable||idbAvailable;
