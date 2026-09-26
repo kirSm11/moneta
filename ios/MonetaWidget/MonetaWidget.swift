@@ -173,7 +173,7 @@ struct MonetaDailyWidget: Widget {
     let kind = "MonetaDailyWidget"
     var body: some WidgetConfiguration {
         AppIntentConfiguration(kind: kind, intent: MonetaWidgetConfiguration.self, provider: Provider()) { entry in
-            MonetaWidgetView(entry: entry)
+            MonetaWidgetView(entry: entry).unredacted()
         }
         .configurationDisplayName("Монета · Сегодня")
         .description("Дневной лимит минус расходы из карточки «Сегодня».")
