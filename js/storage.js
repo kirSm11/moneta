@@ -290,6 +290,8 @@
     requestPersistence,
     storageStatus,
     isPersistent:()=>localAvailable||idbAvailable,
+    isSessionUnlocked:()=>{try{return localStorage.getItem('moneta_session_unlocked')==='1';}catch{return false;}},
+    setSessionUnlocked:value=>{try{if(value)localStorage.setItem('moneta_session_unlocked','1');else localStorage.removeItem('moneta_session_unlocked');}catch{}},
     setActive:id=>{
       db.activeProfileId=id;
       const p=db.profiles.find(x=>x.id===id);
