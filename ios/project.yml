@@ -1,0 +1,46 @@
+name: Moneta
+options:
+  bundleIdPrefix: com.kirsm11
+  deploymentTarget:
+    iOS: "16.0"
+settings:
+  base:
+    SWIFT_VERSION: 5.0
+    IPHONEOS_DEPLOYMENT_TARGET: 16.0
+targets:
+  Moneta:
+    type: application
+    platform: iOS
+    deploymentTarget: "16.0"
+    sources:
+      - MonetaApp
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.kirsm11.moneta
+        INFOPLIST_FILE: MonetaApp/Info.plist
+        CODE_SIGN_ENTITLEMENTS: MonetaApp/Moneta.entitlements
+        TARGETED_DEVICE_FAMILY: "1"
+        SUPPORTS_MACCATALYST: NO
+    dependencies:
+      - target: MonetaWidget
+        embed: true
+  MonetaWidget:
+    type: app-extension
+    platform: iOS
+    deploymentTarget: "17.0"
+    sources:
+      - MonetaWidget
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.kirsm11.moneta.widget
+        INFOPLIST_FILE: MonetaWidget/Info.plist
+        CODE_SIGN_ENTITLEMENTS: MonetaWidget/MonetaWidget.entitlements
+        SKIP_INSTALL: YES
+        APPLICATION_EXTENSION_API_ONLY: YES
+        TARGETED_DEVICE_FAMILY: "1"
+schemes:
+  Moneta:
+    build:
+      targets:
+        Moneta: all
+        MonetaWidget: all
