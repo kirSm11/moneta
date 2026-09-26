@@ -65,8 +65,10 @@
       }finally{btn.disabled=false;btn.textContent='Войти'}
     };
     const bio=host().querySelector('#bioUnlock');
-    if(bio)bio.onclick=async()=>{try{if(await FinAuth.authenticateBiometric(p)){S.setActive(p.id);S.setSessionUnlocked(true);enterApp()}}catch(e){UI.toast('Не удалось: '+e.message)}};
-    setTimeout(()=>pin.focus(),80);
+    if(bio)bio.onclick=async()=>{try{if(await FinAuth.authenticateBiometric(p)){S.setActive(p.id);S.setSessionUnlocked(true);enterApp()}}catch(e){UI.toast('Можно войти по PIN')}};
+    if(p.settings?.biometrics){
+      setTimeout(async()=>{try{if(await FinAuth.authenticateBiometric(p)){S.setActive(p.id);S.setSessionUnlocked(true);enterApp()}}catch{pin.focus()}},180);
+    }else setTimeout(()=>pin.focus(),80);
   }
 
   function renderCreateProfile(){
