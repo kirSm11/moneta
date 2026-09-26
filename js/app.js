@@ -60,12 +60,12 @@
       if(!/^\d{5}$/.test(pin.value))return UI.toast('PIN должен быть из 5 цифр');
       btn.disabled=true; btn.textContent='Проверяю…';
       try{
-        if(await S.verifyPin(p,pin.value)){S.setActive(p.id);enterApp();}
+        if(await S.verifyPin(p,pin.value)){S.setActive(p.id);S.setSessionUnlocked(true);enterApp();}
         else {UI.toast('Неверный PIN');pin.value='';pin.focus();}
       }finally{btn.disabled=false;btn.textContent='Войти'}
     };
     const bio=host().querySelector('#bioUnlock');
-    if(bio)bio.onclick=async()=>{try{if(await FinAuth.authenticateBiometric(p)){S.setActive(p.id);enterApp()}}catch(e){UI.toast('Не удалось: '+e.message)}};
+    if(bio)bio.onclick=async()=>{try{if(await FinAuth.authenticateBiometric(p)){S.setActive(p.id);S.setSessionUnlocked(true);enterApp()}}catch(e){UI.toast('Не удалось: '+e.message)}};
     setTimeout(()=>pin.focus(),80);
   }
 
@@ -92,7 +92,7 @@
       try{
         S.requestPersistence().catch(()=>{});
         const p=await S.createProfile(host().querySelector('#newName').value.trim()||'Мой профиль',value);
-        S.setActive(p.id); enterApp();
+        S.setActive(p.id); S.setSessionUnlocked(true); enterApp();
         if(!S.isPersistent())setTimeout(()=>UI.toast('Для постоянного хранения лучше открыть приложение через HTTPS.'),350);
       }catch(e){console.error(e);err.textContent='Не удалось создать профиль: '+(e?.message||'неизвестная ошибка');err.hidden=false;UI.toast('Ошибка создания профиля')}
       finally{btn.disabled=false;btn.textContent='Создать профиль'}
@@ -139,6 +139,9 @@
         const reg=await navigator.serviceWorker.register('./sw.js');reg.update().catch(()=>{});
       }catch{}
     }
-    await U.sleep(850);renderAuthHome();
+    await U.sleep(850);
+    const p=S.getProfile();
+    if(p && S.isSessionUnlocked())enterApp();
+    else renderAuthHome();
   });
 })();
