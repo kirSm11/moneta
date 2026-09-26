@@ -2,8 +2,15 @@ import SwiftUI
 import WebKit
 import WidgetKit
 import LocalAuthentication
+import Security
 
-private let appGroup = "group.com.kirsm11.moneta"
+private func sharedDefaults() -> UserDefaults? {
+    guard let task = SecTaskCreateFromSelf(nil),
+          let value = SecTaskCopyValueForEntitlement(task, "com.apple.security.application-groups" as CFString, nil),
+          let groups = value as? [String],
+          let group = groups.first else { return nil }
+    return UserDefaults(suiteName: group)
+}
 
 struct MonetaWebView: UIViewRepresentable {
     func makeCoordinator() -> Coordinator { Coordinator() }
@@ -33,7 +40,7 @@ struct MonetaWebView: UIViewRepresentable {
             guard let body = message.body as? [String: Any] else { return }
             if message.name == "monetaWidget" {
                 let spent = (body["spent"] as? NSNumber)?.doubleValue ?? 0
-                let defaults = UserDefaults(suiteName: appGroup)
+                let defaults = sharedDefaults()
                 defaults?.set(spent, forKey: "todaySpent")
                 defaults?.set(Date().timeIntervalSince1970, forKey: "lastSync")
                 WidgetCenter.shared.reloadTimelines(ofKind: "MonetaDailyWidget")
