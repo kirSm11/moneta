@@ -142,8 +142,11 @@
       }catch{}
     }
     await U.sleep(850);
+    // Every fresh app launch is locked. Profile/data remain saved,
+    // but Face ID or the 5-digit PIN is required again.
+    S.setSessionUnlocked(false);
     const p=S.getProfile();
-    if(p && S.isSessionUnlocked())enterApp();
+    if(p) renderPin(p.id);
     else renderAuthHome();
   });
 })();
