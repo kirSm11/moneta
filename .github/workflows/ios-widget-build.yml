@@ -56,8 +56,16 @@ jobs:
           mkdir -p Payload
           cp -R build/Build/Products/Release-iphoneos/Moneta.app Payload/
 
-          # Keep the extension unsigned for SideStore; embedding an ad-hoc
-          # signature makes WidgetKit leave it in placeholder state after resigning.
+          # Preserve App Group capability so SideStore provisions the same
+          # shared container for the app and WidgetKit extension.
+          codesign --force --sign - --entitlements MonetaWidget/MonetaWidget.entitlements Payload/Moneta.app/PlugIns/MonetaWidget.appex
+          codesign --force --sign - --entitlements Moneta/Moneta.entitlements Payload/Moneta.app
+
+          echo "Main app entitlements:"
+          codesign -d --entitlements :- Payload/Moneta.app
+          echo "Widget entitlements:"
+          codesign -d --entitlements :- Payload/Moneta.app/PlugIns/MonetaWidget.appex
+
           zip -qry Moneta-Widget-unsigned.ipa Payload
       - name: Upload IPA
         uses: actions/upload-artifact@v4
